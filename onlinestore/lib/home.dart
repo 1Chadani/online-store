@@ -159,12 +159,12 @@ class SearchProduct extends SearchDelegate {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8),
       color: Colors.grey[200],
-      child: FutureBuilder(
+      child: FutureBuilder<List<Products>>(
           future: productList.getProducts(query: query),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               return ListView.builder(
-                itemCount: snapshot.data!.length,
+                itemCount: snapshot.data?.length,
                 itemBuilder: (context, index) {
                   Products product = snapshot.data![index];
                   return GestureDetector(

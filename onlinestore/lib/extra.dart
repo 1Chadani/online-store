@@ -7,10 +7,10 @@ class ProductService {
   static List<Products> products = [];
 // get products
   Future<List<Products>> getProducts({String? query}) async {
+    products.clear();
     var response = await http.get(Uri.https('fakestoreapi.com', 'products'));
     // print(response.body);
     try {
-      // if (response.statusCode == 200) {
         var inJson = jsonDecode(response.body);
         for (var eachProduct in inJson) {
           final product = Products(
@@ -25,10 +25,6 @@ class ProductService {
           products = products.where((product) => product.title.toLowerCase().contains(query.toLowerCase())).toList();
         }
         return products;
-        // print(products.length);
-      // } else {
-        // print('Error occur while fetching data');
-      // }
     } catch (e) {
       print('Error occur: $e');
     }
