@@ -1,10 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:onlinestore/extra.dart';
-import 'package:http/http.dart' as http;
-import 'package:onlinestore/product.dart';
 import 'package:onlinestore/product.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -14,32 +10,15 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-// List<Products> products = [];
-// // get products
-// Future getProducts() async {
-//   var response = await http.get(Uri.https('fakestoreapi.com', 'products'));
-//   // print(response.body);
-//   var inJson = jsonDecode(response.body);
-//   for (var eachProduct in inJson) {
-//     final product = Products(
-//       title: eachProduct['title'],
-//       price: eachProduct['price'].toDouble(),
-//       description: eachProduct['description'],
-//       image: eachProduct['image'],
-//     );
-//     products.add(product);
-//   }
-//   // print(products.length);
-// }
-
 class _MyHomePageState extends State<MyHomePage> {
   Future<List<Products>>? productsFuture;
 
-  @override
-  void initState() {
-    super.initState();
-    productsFuture = ProductService.getProducts();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   productsFuture = ProductService.getProducts();
+  // }
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -80,7 +59,9 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               actions: [
                 IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      showSearch(context: context, delegate: SearchProduct());
+                    },
                     icon: Icon(
                       Icons.search,
                       color: black,
@@ -108,11 +89,11 @@ class _MyHomePageState extends State<MyHomePage> {
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: Card(
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)
-                              ),
+                                  borderRadius: BorderRadius.circular(12)),
                               child: ListTile(
                                 title: Text(product.title),
-                                subtitle: Text('Rs.' + product.price.toStringAsFixed(2)),
+                                subtitle: Text(
+                                    'Rs.' + product.price.toStringAsFixed(2)),
                                 leading: product.image !=
                                         null // Check if image is not null
                                     ? Image.network(
@@ -136,6 +117,90 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class SearchProduct extends SearchDelegate {
+  ProductService productList = ProductService();
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    // TODO: implement buildActions
+    return [
+      IconButton(
+        onPressed: () {
+          query = '';
+        },
+        icon: const Icon(Icons.clear),
+      )
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    // TODO: implement buildLeading
+    return IconButton(
+        onPressed: () {
+          close(context, null);
+        },
+        icon: const Icon(Icons.arrow_back_ios_new));
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // TODO: implement buildResults
+    return Container(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            color: Colors.grey[200],
+            child: FutureBuilder(
+                future: productList.getProducts(query: query),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    return ListView.builder(
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        Products product = snapshot.data![index];
+                        return GestureDetector(
+                          onTap: () {
+                            Get.to(() => ProductDetail(product: product));
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              child: ListTile(
+                                title: Text(product.title),
+                                subtitle: Text(
+                                    'Rs.' + product.price.toStringAsFixed(2)),
+                                leading: product.image !=
+                                        null // Check if image is not null
+                                    ? Image.network(
+                                        product.image!,
+                                        width: 50,
+                                        height: 50,
+                                      )
+                                    : SizedBox(), // Use SizedBox if image is null
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  } else {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                }),
+          );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    // TODO: implement buildSuggestions
+    return Center(
+      child: Text('Search products')
     );
   }
 }

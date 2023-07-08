@@ -15,9 +15,11 @@ class _ProductDetailState extends State<ProductDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(
-          color: black,
-        ),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back_ios_new, color: black,)),
         actions: [
           Padding(
             padding: const EdgeInsets.all(12.0),
@@ -36,7 +38,7 @@ class _ProductDetailState extends State<ProductDetail> {
             padding: const EdgeInsets.all(16.0),
             child: Center(
               child: Image.network(
-                widget.product!.image!,
+                widget.product.image!,
                 width: 200,
                 height: 200,
               ),
@@ -80,7 +82,6 @@ class _ProductDetailState extends State<ProductDetail> {
                           ),
                         ],
                       ),
-                    
                       Divider(color: Colors.green),
                       Text(
                         'Description',
