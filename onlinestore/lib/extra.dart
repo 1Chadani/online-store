@@ -10,7 +10,7 @@ class ProductService {
     var response = await http.get(Uri.https('fakestoreapi.com', 'products'));
     // print(response.body);
     try {
-      if (response.statusCode == 200) {
+      // if (response.statusCode == 200) {
         var inJson = jsonDecode(response.body);
         for (var eachProduct in inJson) {
           final product = Products(
@@ -26,9 +26,9 @@ class ProductService {
         }
         return products;
         // print(products.length);
-      } else {
-        print('Error occur while fetching data');
-      }
+      // } else {
+        // print('Error occur while fetching data');
+      // }
     } catch (e) {
       print('Error occur: $e');
     }

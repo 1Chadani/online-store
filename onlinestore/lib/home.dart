@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:onlinestore/cart.dart';
 import 'package:onlinestore/extra.dart';
 import 'package:onlinestore/product.dart';
 
@@ -11,7 +12,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Future<List<Products>>? productsFuture;
+  // Future<List<Products>>? productsFuture;
+  ProductService productList = ProductService();
 
   // @override
   // void initState() {
@@ -71,10 +73,10 @@ class _MyHomePageState extends State<MyHomePage> {
             )
           ],
           body: Container(
-            padding: EdgeInsets.symmetric(vertical: 8),
+            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
             color: Colors.grey[200],
             child: FutureBuilder(
-                future: productsFuture,
+                future: productList.getProducts(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
                     return ListView.builder(
@@ -85,24 +87,21 @@ class _MyHomePageState extends State<MyHomePage> {
                           onTap: () {
                             Get.to(() => ProductDetail(product: product));
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                              child: ListTile(
-                                title: Text(product.title),
-                                subtitle: Text(
-                                    'Rs.' + product.price.toStringAsFixed(2)),
-                                leading: product.image !=
-                                        null // Check if image is not null
-                                    ? Image.network(
-                                        product.image!,
-                                        width: 50,
-                                        height: 50,
-                                      )
-                                    : SizedBox(), // Use SizedBox if image is null
-                              ),
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            child: ListTile(
+                              title: Text(product.title),
+                              subtitle: Text(
+                                  'Rs.' + product.price.toStringAsFixed(2)),
+                              leading: product.image !=
+                                      null // Check if image is not null
+                                  ? Image.network(
+                                      product.image!,
+                                      width: 50,
+                                      height: 50,
+                                    )
+                                  : SizedBox(), // Use SizedBox if image is null
                             ),
                           ),
                         );
@@ -116,6 +115,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 }),
           ),
         ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.shopping_cart, color: black,),
+        backgroundColor: appThemeColor,
+        onPressed: () {
+          Get.to(() => CartPage());
+        },
       ),
     );
   }
@@ -150,57 +157,55 @@ class SearchProduct extends SearchDelegate {
   Widget buildResults(BuildContext context) {
     // TODO: implement buildResults
     return Container(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            color: Colors.grey[200],
-            child: FutureBuilder(
-                future: productList.getProducts(query: query),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    return ListView.builder(
-                      itemCount: snapshot.data!.length,
-                      itemBuilder: (context, index) {
-                        Products product = snapshot.data![index];
-                        return GestureDetector(
-                          onTap: () {
-                            Get.to(() => ProductDetail(product: product));
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                              child: ListTile(
-                                title: Text(product.title),
-                                subtitle: Text(
-                                    'Rs.' + product.price.toStringAsFixed(2)),
-                                leading: product.image !=
-                                        null // Check if image is not null
-                                    ? Image.network(
-                                        product.image!,
-                                        width: 50,
-                                        height: 50,
-                                      )
-                                    : SizedBox(), // Use SizedBox if image is null
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  } else {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                }),
-          );
+      padding: EdgeInsets.symmetric(vertical: 8),
+      color: Colors.grey[200],
+      child: FutureBuilder(
+          future: productList.getProducts(query: query),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              return ListView.builder(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  Products product = snapshot.data![index];
+                  return GestureDetector(
+                    onTap: () {
+                      Get.to(() => ProductDetail(product: product));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        child: ListTile(
+                          title: Text(product.title),
+                          subtitle:
+                              Text('Rs.' + product.price.toStringAsFixed(2)),
+                          leading: product.image !=
+                                  null // Check if image is not null
+                              ? Image.network(
+                                  product.image!,
+                                  width: 50,
+                                  height: 50,
+                                )
+                              : SizedBox(), // Use SizedBox if image is null
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            } else {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          }),
+    );
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
     // TODO: implement buildSuggestions
-    return Center(
-      child: Text('Search products')
-    );
+    return Center(child: Text('Search products'));
   }
 }

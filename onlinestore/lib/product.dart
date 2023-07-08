@@ -1,5 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
+import 'package:onlinestore/cart.dart';
 import 'package:onlinestore/extra.dart';
+import 'package:provider/provider.dart';
+
+class CartModel extends ChangeNotifier {
+  List<Products> cartItems = [];
+
+  void addToCart(Products product) {
+    cartItems.add(product);
+    notifyListeners();
+  }
+
+  void removeItemFromCart(int index) {
+      cartItems.removeAt(index);
+      notifyListeners();
+    }
+  bool contains(Products product) {
+    return cartItems.contains(product);
+  }
+}
 
 class ProductDetail extends StatefulWidget {
   final Products product;
@@ -19,15 +40,21 @@ class _ProductDetailState extends State<ProductDetail> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: Icon(Icons.arrow_back_ios_new, color: black,)),
+            icon: Icon(
+              Icons.arrow_back_ios_new,
+              color: black,
+            )),
         actions: [
           Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Icon(
-              Icons.shopping_cart,
-              color: black,
-            ),
-          )
+              padding: const EdgeInsets.all(12.0),
+              child: IconButton(
+                  onPressed: () {
+                    Get.to(() => CartPage());
+                  },
+                  icon: Icon(
+                    Icons.shopping_cart,
+                    color: black,
+                  )))
         ],
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -117,7 +144,26 @@ class _ProductDetailState extends State<ProductDetail> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () {
+          // Access the CartModel using Provider
+          CartModel cartModel = context.read<CartModel>();
+
+          if (!cartModel.contains(widget.product)) {
+            // Add the selected product to the cart
+            cartModel.addToCart(widget.product);
+            Fluttertoast.showToast(
+              msg: "Added to cart successfully",
+              backgroundColor: Colors.green,
+              fontSize: 16.0,
+            );
+          } else {
+            Fluttertoast.showToast(
+              msg: "Item already added",
+              backgroundColor: Colors.red,
+              fontSize: 16.0,
+            );
+          }
+        },
         label: const Text(
           'Add to cart',
           style: TextStyle(color: Colors.black),
